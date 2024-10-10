@@ -17,3 +17,33 @@ Futures:
 Interactive Map Interface: Visualize events in your area with our intuitive map display. Zoom in, filter by event type, and get a bird's-eye view of your surroundings.
 Customizable Alerts: Set up personalized notifications for the events and areas that matter most to you. Stay informed without being overwhelmed.
 Comprehensive Event Details: Get in-depth information on each event, including real-time updates, official advisories, and community reports.
+
+
+docker build -t welcome-to-docker .
+create a Dockerfile with custom image instructions
+add a .dockerignore file
+build the image
+create a docker-compose.yml file
+spin up the container(s)
+
+docker-compose down
+docker-compose up
+$ docker-compose up -d --build (for changes)
+docker-compose exec web python manage.py migrate
+docker-compose exec web python manage.py createsuperuser
+
+# Start all services
+docker-compose up
+
+# Start in detached mode
+docker-compose up -d
+
+# Stop all services
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# Rebuild specific service (new npm packages)
+docker-compose up -d --build frontend
+
