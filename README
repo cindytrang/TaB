@@ -1,5 +1,19 @@
-admin
-root
+admin, root
 
 DJANGO RESOURCES:
-https://learndjango.com/tutorials/django-userprofile-model
+https://learndjango.com/tutorials
+
+In today's fast-paced world, staying informed about local events and potential risks is crucial. Introducing TaB, the cutting-edge app that keeps you one step ahead of danger.
+
+Your Personal Safety Radar
+TaB harnesses the power of advanced web-scraping technology and real-time data analysis to provide you with up-to-the-minute information on events happening around you. From natural disasters to traffic incidents, TaB has you covered.
+
+Key Features:
+1. Event Tracking (Personal/Group): Our sophisticated algorithms continuously scan the web, bringing you the latest information on local and global events.
+2. User-Friendly Design: Navigate through the app with ease, thanks to our sleek, intuitive interface designed for users of all tech levels.
+3. Danger Assessment System: TaB doesn't just list events – it analyzes them. Our proprietary risk assessment system categorizes each event's danger level, allowing you to make informed decisions quickly.
+
+Futures:
+Interactive Map Interface: Visualize events in your area with our intuitive map display. Zoom in, filter by event type, and get a bird's-eye view of your surroundings.
+Customizable Alerts: Set up personalized notifications for the events and areas that matter most to you. Stay informed without being overwhelmed.
+Comprehensive Event Details: Get in-depth information on each event, including real-time updates, official advisories, and community reports.

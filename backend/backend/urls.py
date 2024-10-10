@@ -20,8 +20,10 @@ from myapp import views
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
+    path("", include("myapp.urls")),
     path('admin/', admin.site.urls),
     path('hello/', views.HelloView.as_view(), name='hello'),
+
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('api/signup/', views.SignUpView.as_view(), name='signup'),
     path('api/login/', views.LoginView.as_view(), name='login'),
@@ -29,7 +31,8 @@ urlpatterns = [
     path('api/password_change/', views.ChangePasswordView.as_view(), name='password_change'),
     # path('api/password_reset/', PasswordResetView.as_view(), name='password_reset'),
     # path('api/password_reset_confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+
+
     path('accounts/', include('django.contrib.auth.urls')),
     path('api/profile/', views.UserProfileView.as_view(), name='user-profile'),
-
 ]
