@@ -52,7 +52,7 @@ class CalendarEvent(models.Model):
 
     def __str__(self):
         return f'{self.event_title} ({self.group.name})'
-    
+
 @receiver(post_save, sender=CustomUser)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
