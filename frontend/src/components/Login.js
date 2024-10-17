@@ -16,30 +16,54 @@ const Login = () => {
     }, 3000);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSignup = async () => {
     try {
-      const endpoint = isSignUp ? 'api/signup/' : 'api/login/';
-      const payload = isSignUp 
-        ? { username, email, password }
-        : { username_or_email: username, password };
-      
-      const response = await axios.post(endpoint, payload);
-      console.log(isSignUp ? 'User signed up:' : 'User logged in:', response.data);
-      localStorage.setItem('authToken', response.data.token);
-      showToast(isSignUp ? "Signup Successful" : "Login Successful", "success");
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 2000); 
+      const response = await axios.post('api/signup/', { username, email, password });
+      console.log('User signed up:', response.data);
+      showToast("Signup Successful! Please log in.", "success");
+      setIsSignUp(false);
+      setUsername('');
+      setEmail('');
+      setPassword('');
     } catch (error) {
-      console.error(`There was an error ${isSignUp ? 'signing up' : 'logging in'}!`, error);
+      console.error('There was an error signing up!', error);
       if (error.response && error.response.data) {
         Object.entries(error.response.data).forEach(([key, value]) => {
           showToast(`${key}: ${Array.isArray(value) ? value.join(" ") : value}`, "error");
         });
       } else {
-        showToast("An unexpected error occurred. Please try again.", "error");
+        showToast("An unexpected error occurred during signup. Please try again.", "error");
       }
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('api/login/', { username_or_email: username, password });
+      console.log('User logged in:', response.data);
+      localStorage.setItem('authToken', response.data.token);
+      showToast("Login Successful", "success");
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000);
+    } catch (error) {
+      console.error('There was an error logging in!', error);
+      if (error.response && error.response.data) {
+        Object.entries(error.response.data).forEach(([key, value]) => {
+          showToast(`${key}: ${Array.isArray(value) ? value.join(" ") : value}`, "error");
+        });
+      } else {
+        showToast("An unexpected error occurred during login. Please try again.", "error");
+      }
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isSignUp) {
+      await handleSignup();
+    } else {
+      await handleLogin();
     }
   };
 
