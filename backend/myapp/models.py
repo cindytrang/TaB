@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save 
 from django.dispatch import receiver
 from django.contrib.auth.models import Group as DjangoGroup, Permission
+from django.conf import settings
 
 class CustomUser(AbstractUser):        
     pass
@@ -27,12 +28,17 @@ class GroupProfile(models.Model):
         return f'{self.group.name}: {self.group_description}'
     
 class CustomGroup(models.Model):
-    group = models.OneToOneField(DjangoGroup, on_delete=models.CASCADE)
-    members = models.ManyToManyField(CustomUser)
+    group = models.OneToOneField(DjangoGroup, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=150)
+    members = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='custom_groups')
+
+    def save(self, *args, **kwargs):
+        if not self.group:
+            self.group = DjangoGroup.objects.create(name=self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        members_str = ', '.join([str(member) for member in self.members.all()])
-        return f'{self.name} ({members_str})'    
+        return self.name
 
 class Calendar(models.Model):
     group = models.OneToOneField(CustomGroup, on_delete=models.CASCADE, related_name="calendar")

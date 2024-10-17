@@ -103,10 +103,22 @@ class GroupProfileSerializer(serializers.ModelSerializer):
         model = GroupProfile
         fields = ('group', 'group_description')
 
+
 class CustomGroupSerializer(serializers.ModelSerializer):
+    members = serializers.PrimaryKeyRelatedField(many=True, queryset=CustomUser.objects.all(), required=False)
     class Meta:
         model = CustomGroup
-        fields = ['id', 'group', 'members']
+        fields = ['id', 'name', 'members']
+        extra_kwargs = {
+            'name': {'required': True},
+        }
+
+    def create(self, validated_data):
+        members_data = validated_data.pop('members', [])
+        group = CustomGroup.objects.create(**validated_data)
+        for member in members_data:
+            group.members.add(member)
+        return group
 
 class CalendarSerializer(serializers.ModelSerializer):
     class Meta:

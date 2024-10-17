@@ -119,6 +119,9 @@ class GroupListView(generics.ListCreateAPIView):
     serializer_class = CustomGroupSerializer
     permission_classes = [IsAuthenticated]
 
+    def perform_create(self, serializer):
+        serializer.save()
+
 class GroupDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomGroup.objects.all()
     serializer_class = CustomGroupSerializer
@@ -159,32 +162,27 @@ class UserEventsView(APIView):
         events = CalendarEvent.objects.filter(group__members=user)
         serializer = CalendarEventSerializer(events, many=True)
         return Response(serializer.data)
+
+class GroupMembersView(generics.ListAPIView):
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        group_id = self.kwargs['pk']
+        return CustomGroup.objects.get(id=group_id).members.all()
+    
+class AllUsersView(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return CustomUser.objects.exclude(id=self.request.user.id)
     
 @api_view(['POST'])
 def add_user_to_group(request, pk):
     try:
         group = CustomGroup.objects.get(pk=pk)
-        user = request.user
-        group.members.add(user)
-        return Response({"message": "User added to group successfully"}, status=status.HTTP_200_OK)
     except CustomGroup.DoesNotExist:
-        return Response({"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND)
-
-@api_view(['POST'])
-def remove_user_from_group(request, pk):
-    try:
-        group = CustomGroup.objects.get(pk=pk)
-        user = request.user
-        group.members.remove(user)
-        return Response({"message": "User removed from group successfully"}, status=status.HTTP_200_OK)
-    except CustomGroup.DoesNotExist:
-        return Response({"error": "Group not found"}, status=status.HTTP_404_NOT_FOUND)
-
-@api_view(['POST'])
-def add_user_to_group(request, pk):
-    try:
-        group = DjangoGroup.objects.get(pk=pk)
-    except DjangoGroup.DoesNotExist:
         return Response({'detail': 'Group not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     user_id = request.data.get('user_id')
@@ -194,28 +192,6 @@ def add_user_to_group(request, pk):
     except CustomUser.DoesNotExist:
         return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-    group.user_set.add(user)
+    group.members.add(user)
 
     return Response({'detail': 'User added to group successfully.'}, status=status.HTTP_200_OK)
-
-@api_view(['DELETE'])
-def remove_user_from_group(request, pk):
-    try:
-        # Get the group by primary key (pk)
-        group = DjangoGroup.objects.get(pk=pk)
-    except DjangoGroup.DoesNotExist:
-        return Response({'detail': 'Group not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-    # Get the user ID from the request data
-    user_id = request.data.get('user_id')
-    
-    try:
-        # Get the user by ID
-        user = CustomUser.objects.get(pk=user_id)
-    except CustomUser.DoesNotExist:
-        return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-    # Remove the user from the group
-    group.user_set.remove(user)
-
-    return Response({'detail': 'User removed from group successfully.'}, status=status.HTTP_200_OK)
