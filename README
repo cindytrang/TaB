@@ -5,7 +5,7 @@ TaB is am app that keeps you informed about local events and potential risks. It
 
 ## Key Features
 1. Event Tracking (Personal/Group)
-2. User-Friendly Design
+2. User-Friendly Design (Mobile Compatible)
 3. Danger Assessment System (Notification)
 
 ## Future Features
@@ -14,7 +14,7 @@ TaB is am app that keeps you informed about local events and potential risks. It
 - Comprehensive Event Details
 
 ## Tech Stack
-- Frontend: React.js with NextUI
+- Frontend: React with NextUI
 - Backend: Django
 - Database: PostgreSQL
 - Containerization: Docker
@@ -36,8 +36,6 @@ TaB is am app that keeps you informed about local events and potential risks. It
    docker compose up --build
    ```
 
-   This command will build the images if they don't exist and start the containers.
-
 3. Access the application:
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:8000
@@ -53,17 +51,19 @@ TaB is am app that keeps you informed about local events and potential risks. It
 ### Database Migrations
 To run database migrations:
 ```
-docker-compose exec web python manage.py migrate
+python manage.py migrate
 ```
 
 ### Creating a Superuser
 To create an admin superuser:
 ```
-docker-compose exec web python manage.py createsuperuser
+python manage.py createsuperuser
 ```
 
 ## Resources
 - Django Learning Resources: https://learndjango.com/tutorials
+- NextUI: https://nextui.org/docs/components/calendar
+- Slides: https://www.canva.com/design/DAGTauHaS5E/S0zPGviErzsv_1KD9Mkitw/edit?utm_content=DAGTauHaS5E&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
 ## License
 This project is licensed under the MIT License - see the LICENSE.md file for details.

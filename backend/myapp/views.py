@@ -16,7 +16,6 @@ from django.contrib.auth import authenticate, logout
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import Group as DjangoGroup
 
-
 class HelloView(APIView):
     permission_classes = (IsAuthenticated,)
 
@@ -146,14 +145,6 @@ class CalendarEventListView(generics.ListCreateAPIView):
         group = CustomGroup.objects.get(pk=self.kwargs['group_pk'])
         serializer.save(group=group, event_created_by=self.request.user)
 
-class CalendarEventDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = CalendarEvent.objects.all()
-    serializer_class = CalendarEventSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        return self.get_queryset().get(pk=self.kwargs['pk'], group__pk=self.kwargs['group_pk'])
-
 class UserEventsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -177,6 +168,33 @@ class AllUsersView(generics.ListAPIView):
 
     def get_queryset(self):
         return CustomUser.objects.exclude(id=self.request.user.id)
+
+class CalendarEventDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CalendarEventSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        group_pk = self.kwargs['group_pk']
+        return CalendarEvent.objects.filter(group__id=group_pk)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
 @api_view(['POST'])
 def add_user_to_group(request, pk):

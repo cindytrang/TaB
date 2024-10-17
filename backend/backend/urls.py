@@ -29,9 +29,6 @@ urlpatterns = [
     path('api/login/', views.LoginView.as_view(), name='login'),
     path('api/logout/', views.LogoutView.as_view(), name='logout'),
     path('api/password_change/', views.ChangePasswordView.as_view(), name='password_change'),
-    # path('api/password_reset/', PasswordResetView.as_view(), name='password_reset'),
-    # path('api/password_reset_confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-
 
     path('accounts/', include('django.contrib.auth.urls')),
     path('api/profile/', views.UserProfileView.as_view(), name='user-profile'),

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardBody, Chip, Divider } from "@nextui-org/react";
+import { Card, CardBody, Chip, Divider, Button } from "@nextui-org/react";
 import { CalendarIcon, MapPinIcon, FlagIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 const priorityColors = {
@@ -15,11 +15,11 @@ const statusColors = {
   cancelled: "danger"
 };
 
-const EventList = ({ events }) => {
+const EventList = ({ events, onUpdateEvent, onDeleteEvent }) => {
   return (
     <div className="space-y-4">
       {events.map((event) => (
-        <Card key={event.id} className={`${event.color === '#3182ce' ? 'border-blue-200' : 'border-red-200'} border-2`}>
+        <Card key={event.id} className={`${event.color === '#3182ce' ? 'border-grey-200' : 'border-grey-200'} border-2`}>
           <CardBody>
             <div className="flex justify-between items-start mb-2">
               <h3 className="text-lg font-bold">{event.title}</h3>
@@ -53,6 +53,10 @@ const EventList = ({ events }) => {
                   Status: {event.event_status}
                 </Chip>
               </div>
+            </div>
+            <div className="mt-4 flex justify-end space-x-2">
+              <Button size="sm" color="primary" onClick={() => onUpdateEvent(event)}>Update</Button>
+              <Button size="sm" color="danger" onClick={() => onDeleteEvent(event.id)}>Delete</Button>
             </div>
           </CardBody>
         </Card>

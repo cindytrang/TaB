@@ -6,6 +6,7 @@ import { today, getLocalTimeZone, isWeekend} from "@internationalized/date";
 import { useLocale } from "@react-aria/i18n";
 import EventList from './EventList';
 import NewsSection from './NewsSection';
+import { CalendarIcon, MapPinIcon, FlagIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 const safeParseISO = (dateString) => {
     if (!dateString) return null;
@@ -44,6 +45,9 @@ const Home = () => {
         { id: 2, title: "Weather Warning: Heavy Rain Expected", content: "Meteorologists predict heavy rainfall over the next 48 hours. Residents are urged to prepare for potential flooding." },
         { id: 3, title: "New Business District Opening Ceremony", content: "The mayor will attend the ribbon-cutting ceremony for the newly developed business district downtown." }
     ];
+    const [isUpdateEventOpen, setIsUpdateEventOpen] = useState(false);
+    const [eventToUpdate, setEventToUpdate] = useState(null);
+
     useEffect(() => {
         fetchProfileAndData();
     }, []);
@@ -112,8 +116,6 @@ const Home = () => {
         return !hasEvent;
     };
 
-
-
     const filterEvents = (date) => {
         const filtered = allEvents.filter(event => 
             event.start && isSameDay(event.start, date.toDate(getLocalTimeZone()))
@@ -124,11 +126,6 @@ const Home = () => {
     const handleDateSelect = (date) => {
         setSelectedDate(date);
         setFocusedDate(date);
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem('authToken');
-        window.location.href = '/login';
     };
 
     const handleCreateGroup = async () => {
@@ -193,24 +190,42 @@ const Home = () => {
         }
     };
 
+    const handleUpdateEvent = (event) => {
+        setEventToUpdate(event);
+        setIsUpdateEventOpen(true);
+      };
+    
+    const handleDeleteEvent = async (eventId) => {
+    const token = localStorage.getItem('authToken');
+    try {
+        await axios.delete(`api/groups/${selectedGroup}/events/${eventId}/`, {
+        headers: { 'Authorization': `Token ${token}` }
+        });
+        setAllEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+    } catch (err) {
+        setError('Failed to delete event');
+        console.error('Error:', err);
+    }
+    };
+
+    const handleUpdateEventSubmit = async () => {
+    const token = localStorage.getItem('authToken');
+    try {
+        const response = await axios.put(`api/groups/${selectedGroup}/events/${eventToUpdate.id}/`, eventToUpdate, {
+        headers: { 'Authorization': `Token ${token}` }
+        });
+        setIsUpdateEventOpen(false);
+        setEventToUpdate(null);
+        fetchGroupData();
+    } catch (err) {
+        setError('Failed to update event');
+        console.error('Error:', err);
+    }
+    };
+
     const handleEventInputChange = (name, value) => {
         const finalValue = name === 'event_priority' ? parseInt(value, 10) : value;
         setNewEvent(prev => ({ ...prev, [name]: finalValue }));
-    };
-
-    const renderCalendarCell = (date) => {
-        const formattedDate = format(date.toDate(getLocalTimeZone()), 'yyyy-MM-dd');
-        const hasEvent = allEvents.some(event => 
-            event.start && format(event.start, 'yyyy-MM-dd') === formattedDate
-        );
-
-        return (
-            <div className={`relative w-full h-full flex items-center justify-center 
-                ${hasEvent ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                {date.day}
-                {hasEvent && <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></span>}
-            </div>
-        );
     };
 
     if (error) return <div>Error: {error}</div>;
@@ -220,9 +235,11 @@ const Home = () => {
         <div className="p-4">
             <Card className="mb-4">
                 <CardHeader>
-                    <h1 className="text-2xl">Welcome, {profile.user.username}!</h1>
+                <CheckCircleIcon className="h-5 w-5 mr-2" />
+                    <h1 className="text-2xl">Enjoy Your Amazing Day!</h1>
                 </CardHeader>
                 <CardBody>
+                    <p>User details: </p>
                     <p>Email: {profile.user.email}</p>
                     {profile.age && <p>Age: {profile.age}</p>}
                 </CardBody>
@@ -230,6 +247,7 @@ const Home = () => {
 
             <Card className="mb-4">
                 <CardHeader>
+                <CalendarIcon className="h-5 w-5 mr-2" />
                     <h2 className="text-xl font-bold">Switch Calendar</h2>
                 </CardHeader> 
                 <CardBody>
@@ -267,6 +285,7 @@ const Home = () => {
             {selectedGroup && (
                 <Card className="mb-4">
                     <CardHeader>
+                        <img src="profile.jpg"  width={40} ></img>
                         <h2 className="text-xl">Group Members</h2>
                     </CardHeader>
                     <CardBody>
@@ -281,19 +300,19 @@ const Home = () => {
 
             <Card className="mb-6">
                 <CardHeader>
+                <MapPinIcon className="h-5 w-5 mr-2" />
                     <h2 className="text-xl font-bold">Events and News</h2>
                 </CardHeader>
                 <CardBody>
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="w-full md:w-1/2">
-                            <h3 className="text-lg font-semibold mb-14">Calendar</h3>
+                            <h3 className="text-lg font-semibold mb-10">Calendar</h3>
                             <Calendar
                                 aria-label="Event Calendar"
                                 showMonthAndYearPickers={true}
                                 focusedValue={focusedDate}
                                 value={selectedDate}
                                 onChange={handleDateSelect}
-                                cell={renderCalendarCell}
                                 isDateUnavailable={isDateUnavailable}
                                 className="w-full"
                                 visibleMonths={3} 
@@ -311,11 +330,12 @@ const Home = () => {
 
             <Card>
                 <CardHeader>
+                <FlagIcon className="h-5 w-5 mr-2" />
                     <h2 className="text-xl font-bold text-xl">Events for {format(selectedDate.toDate(getLocalTimeZone()), 'MMMM d, yyyy')}</h2>
                 </CardHeader>
                 <CardBody>
                     {filteredEvents.length > 0 ? (
-                        <EventList events={filteredEvents} />
+                        <EventList events={filteredEvents} onUpdateEvent={handleUpdateEvent} onDeleteEvent={handleDeleteEvent} />
                     ) : (
                         <p>No events for this date.</p>
                     )}
@@ -430,6 +450,42 @@ const Home = () => {
                     </ModalFooter>
                 </ModalContent>
             </Modal>
+
+            <Modal isOpen={isUpdateEventOpen} onClose={() => setIsUpdateEventOpen(false)}>
+            <ModalContent>
+            <ModalHeader>Update Event</ModalHeader>
+            <ModalBody>
+                {eventToUpdate && (
+                <>
+                    <Input 
+                    placeholder="Event Title" 
+                    value={eventToUpdate.event_title} 
+                    onChange={(e) => setEventToUpdate({...eventToUpdate, event_title: e.target.value})} 
+                    className="mb-2"
+                    />
+                    <Input 
+                    placeholder="Start Date" 
+                    type="datetime-local"
+                    value={eventToUpdate.event_start_date} 
+                    onChange={(e) => setEventToUpdate({...eventToUpdate, event_start_date: e.target.value})} 
+                    className="mb-2"
+                    />
+                    <Input 
+                    placeholder="End Date" 
+                    type="datetime-local"
+                    value={eventToUpdate.event_end_date} 
+                    onChange={(e) => setEventToUpdate({...eventToUpdate, event_end_date: e.target.value})} 
+                    className="mb-2"
+                    />
+                </>
+                )}
+            </ModalBody>
+            <ModalFooter>
+                <Button color="primary" onClick={handleUpdateEventSubmit}>Update</Button>
+                <Button color="danger" onClick={() => setIsUpdateEventOpen(false)}>Cancel</Button>
+            </ModalFooter>
+            </ModalContent>
+        </Modal>
         </div>
     );
 };
