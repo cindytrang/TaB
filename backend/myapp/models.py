@@ -29,7 +29,7 @@ class GroupProfile(models.Model):
     
 class CustomGroup(models.Model):
     group = models.OneToOneField(DjangoGroup, on_delete=models.CASCADE, null=True, blank=True)
-    name = models.CharField(max_length=150)
+    name = models.CharField(max_length=150, default="Default name")
     members = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='custom_groups')
 
     def save(self, *args, **kwargs):
@@ -45,6 +45,7 @@ class Calendar(models.Model):
 
     def __str__(self):
         return f'Calendar for {self.group.group.name}'
+    
 class CalendarEvent(models.Model):
     group = models.ForeignKey(CustomGroup, on_delete=models.CASCADE)
     event_title = models.CharField(max_length=255)

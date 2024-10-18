@@ -112,7 +112,6 @@ class GroupDetailView(generics.ListAPIView):
     queryset = DjangoGroup.objects.all()
     serializer_class = GroupProfileSerializer
 
-
 class GroupListView(generics.ListCreateAPIView):
     queryset = CustomGroup.objects.all()
     serializer_class = CustomGroupSerializer
